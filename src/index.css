@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Digital Museum Design System - Scholarly & Warm Palette 
+All colors MUST be HSL. Typography: Playfair Display (headings), Inter (body)
+*/
+
+@layer base {
+  :root {
+    /* Scholarly & Warm Color Palette */
+    --background: 42 50% 96%; /* Linen #FAF3E0 */
+    --foreground: 0 0% 20%; /* Charcoal #333333 */
+    --background-soft: 42 30% 94%; /* Softer background variant */
+    --text-primary: 0 0% 20%; /* Charcoal for primary text */
+    --text-secondary: 0 0% 40%; /* Lighter for secondary text */
+    --ui-secondary: 0 0% 90%; /* Stone Gray for UI elements */
+    --primary-dark: 33 100% 35%; /* Darker variant of Deep Ochre */
+
+    --card: 42 50% 98%;
+    --card-foreground: 0 0% 20%;
+
+    --popover: 42 50% 96%;
+    --popover-foreground: 0 0% 20%;
+
+    --primary: 33 100% 40%; /* Deep Ochre #CC7A00 */
+    --primary-foreground: 42 50% 96%;
+
+    --secondary: 0 0% 90%; /* Stone Gray #E5E5E5 */
+    --secondary-foreground: 0 0% 20%;
+
+    --muted: 0 0% 90%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 33 100% 40%;
+    --accent-foreground: 42 50% 96%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 42 50% 96%;
+
+    --border: 0 0% 85%;
+    --input: 0 0% 90%;
+    --ring: 33 100% 40%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+}
+
+@layer components {
+  /* Voice Control UI */
+  .voice-indicator {
+    @apply relative inline-flex h-3 w-3 rounded-full;
+  }
+  
+  .voice-indicator.listening {
+    @apply bg-primary animate-pulse;
+  }
+  
+  .voice-indicator.idle {
+    @apply bg-muted;
+  }
+  
+  .voice-indicator.processing {
+    @apply bg-accent animate-spin;
+  }
+
+  /* Gentle animations for digital sanctuary feel */
+  .gentle-hover {
+    @apply transition-all duration-300 ease-out hover:scale-105 hover:shadow-lg;
+  }
+
+  .fade-in {
+    @apply animate-in fade-in-0 duration-700;
+  }
+
+  .slide-up {
+    @apply animate-in slide-in-from-bottom-4 duration-700;
+  }
+
+  /* Custom prose styles for exhibit deep dive */
+  .prose-custom {
+    @apply max-w-none;
+  }
+  
+  .prose-custom p {
+    @apply mb-6 leading-relaxed;
+  }
+  
+  .prose-custom h2 {
+    font-family: theme('fontFamily.playfair');
+    @apply text-2xl font-bold text-text-primary mt-12 mb-6;
+  }
+  
+  .prose-custom h3 {
+    @apply text-xl font-playfair font-semibold text-text-primary mt-8 mb-4;
+  }
+}
