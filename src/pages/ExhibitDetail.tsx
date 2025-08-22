@@ -5,6 +5,15 @@ import { ArrowLeft, Clock, Calendar, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 // Sample exhibit data - in a real app, this would come from an API
+interface Section {
+  type: string;
+  content: string;
+  author?: string;
+  src?: string;
+  alt?: string;
+  caption?: string;
+}
+
 const exhibitData = {
   "ancient-civilizations": {
     title: "Echoes of Ancient Civilizations",
@@ -103,7 +112,7 @@ export const ExhibitDetail = () => {
     return <Navigate to="/exhibitions" replace />;
   }
 
-  const renderSection = (section: any, index: number) => {
+  const renderSection = (section: Section, index: number) => {
     const baseClasses = "opacity-0 translate-y-4 transition-all duration-700";
     
     switch (section.type) {
