@@ -1,90 +1,128 @@
-import { useEffect } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mic, MicOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 
+interface ISpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: (event: any) => void; // Using 'any' to avoid complex type definitions
+  onerror: (event: any) => void;   // Using 'any' to avoid complex type definitions
+  onend: () => void;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: {
+      new (): ISpeechRecognition;
+      prototype: ISpeechRecognition;
+    };
+    webkitSpeechRecognition: {
+      new (): ISpeechRecognition;
+      prototype: ISpeechRecognition;
+    };
+  }
+}
+
 interface VoiceControlProps {
   isActive: boolean;
   onToggle: (active: boolean) => void;
-} 
+}
 
 export function VoiceControl({ isActive, onToggle }: VoiceControlProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [listening, setListening] = useState(false);
+  const [transcript, setTranscript] = useState("");
 
-  const commands = [
-    {
-      command: 'go to *',
-      callback: (page: string) => {
-        const pageName = page.toLowerCase().replace(/\s/g, '');
-        navigate(`/${pageName}`);
-      }
-    },
-    {
-      command: ['scroll down', 'scrolldown'],
-      callback: () => {
-        console.log('Scrolling down...');
-        window.scrollBy(0, window.innerHeight);
-      }
-    },
-    {
-      command: ['scroll up', 'scrollup'],
-      callback: () => {
-        console.log('Scrolling up...');
-        window.scrollBy(0, -window.innerHeight);
-      }
-    },
-    {
-      command: 'go back',
-      callback: () => navigate(-1)
-    },
-    {
-      command: 'go forward',
-      callback: () => navigate(1)
-    },
-    {
-        command: 'tell me more about this website',
-        callback: () => {
-            toast({
-                title: 'About the Digital Cultural Heritage Museum',
-                description: 'This is a modern, voice-controlled digital museum designed to make cultural heritage accessible to everyone. It leverages cutting-edge web technologies to provide an immersive and inclusive experience for exploring artifacts and exhibitions.',
-            })
-        }
+  const handleResult = useCallback((event: any) => {
+    const currentTranscript = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
+    setTranscript(currentTranscript);
+    console.log("Transcript:", currentTranscript);
+
+    if (currentTranscript.startsWith("go to")) {
+      const page = currentTranscript.substring(6).replace(/\s/g, "");
+      navigate(`/${page}`);
+    } else if (currentTranscript.includes("scroll down")) {
+      window.scrollBy(0, window.innerHeight);
+    } else if (currentTranscript.includes("scroll up")) {
+      window.scrollBy(0, -window.innerHeight);
+    } else if (currentTranscript.includes("go back")) {
+      navigate(-1);
+    } else if (currentTranscript.includes("go forward")) {
+      navigate(1);
+    } else if (currentTranscript.includes("tell me more about this website")) {
+      toast({
+        title: "About the Digital Cultural Heritage Museum",
+        description: "This is a modern, voice-controlled digital museum designed to make cultural heritage accessible to everyone. It leverages cutting-edge web technologies to provide an immersive and inclusive experience for exploring artifacts and exhibitions.",
+      });
     }
-  ];
+  }, [navigate, toast]);
 
-  const { transcript, listening, browserSupportsSpeechRecognition } = useSpeechRecognition({ commands });
-
-  useEffect(() => {
-    if (!browserSupportsSpeechRecognition) {
+  const recognition = useMemo(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
       toast({
         variant: "destructive",
         title: "Voice Control Not Supported",
         description: "Your browser does not support the Web Speech API.",
       });
+      console.log('SpeechRecognition is not supported in this browser');
+      throw new Error('SpeechRecognition is not supported in this browser');
     }
-  }, [browserSupportsSpeechRecognition, toast]);
-
-  useEffect(() => {
-    // Stop listening if the component is unmounted or deactivated.
-    return () => {
-      SpeechRecognition.stopListening();
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      let description = `An error occurred: ${event.error}. Please check your microphone and browser permissions.`;
+      if (event.error === 'network') {
+        description = 'A network error occurred. Please check your internet connection and try again.';
+      }
+      toast({
+        variant: "destructive",
+        title: "Speech Recognition Error",
+        description,
+      });
     };
+
+    recognition.onend = () => {
+      if (listening) {
+        console.log("Speech recognition ended unexpectedly. Restarting...");
+        recognition.start();
+      }
+    };
+    return recognition;
   }, []);
+  useEffect(() => {
+    recognition.onresult = handleResult;
+  }, [recognition, handleResult]);
+
+  const startListening = () => {
+    setListening(true);
+    recognition.start();
+  };
+
+  const stopListening = () => {
+    setListening(false);
+    recognition.stop();
+  };
+
+  
 
   useEffect(() => {
-    if (transcript) {
-      console.log('Transcript:', transcript);
-    }
-  }, [transcript]);
-
-  useEffect(() => {
-    console.log('Listening status:', listening);
-  }, [listening]);
+    return () => {
+      recognition.stop();
+    };
+  }, [recognition]);
 
   if (!isActive) return null;
 
@@ -129,7 +167,7 @@ export function VoiceControl({ isActive, onToggle }: VoiceControlProps) {
 
         <Button
           className="w-full mb-4"
-          onClick={() => listening ? SpeechRecognition.stopListening() : SpeechRecognition.startListening({ continuous: true })}
+          onClick={() => (listening ? stopListening() : startListening())}
           aria-label={listening ? "Stop listening" : "Start listening"}
         >
           {listening ? (

@@ -109,6 +109,10 @@ All colors MUST be HSL. Typography: Playfair Display (headings), Inter (body)
     @apply bg-background text-foreground font-body antialiased;
   }
 
+  html {
+    @apply scroll-smooth;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
   }
