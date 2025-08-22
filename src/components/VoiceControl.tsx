@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Mic, MicOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
@@ -49,7 +50,11 @@ export function VoiceControl({ isActive, onToggle }: VoiceControlProps) {
 
     if (currentTranscript.startsWith("go to")) {
       const page = currentTranscript.substring(6).replace(/\s/g, "");
-      navigate(`/${page}`);
+      if (page === "home") {
+        navigate("/");
+      } else {
+        navigate(`/${page}`);
+      }
     } else if (currentTranscript.includes("scroll down")) {
       window.scrollBy(0, window.innerHeight);
     } else if (currentTranscript.includes("scroll up")) {
@@ -127,7 +132,7 @@ export function VoiceControl({ isActive, onToggle }: VoiceControlProps) {
   if (!isActive) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 max-w-sm">
+    <div className="fixed bottom-4 left-4 z-50 max-w-sm">
       <Card className="p-4 bg-card/95 backdrop-blur shadow-lg border-2 border-primary/20">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
@@ -163,6 +168,22 @@ export function VoiceControl({ isActive, onToggle }: VoiceControlProps) {
               Say a command...
             </p>
           )}
+        </div>
+
+        <div className="mb-4">
+          <p className="text-sm text-muted-foreground mb-2">Try saying:</p>
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="secondary">Go to home</Badge>
+            <Badge variant="secondary">Scroll down</Badge>
+            <Badge variant="secondary">Tell me more about this website</Badge>
+            <Badge variant="secondary">Go to explore</Badge>
+            <Badge variant="secondary">Go to exhibitions</Badge>
+            <Badge variant="secondary">Go to about</Badge>
+            <Badge variant="secondary">Go to ethics</Badge>
+            <Badge variant="secondary">Go back</Badge>
+            <Badge variant="secondary">Go forward</Badge>
+            <Badge variant="secondary">Scroll up</Badge>
+          </div>
         </div>
 
         <Button
