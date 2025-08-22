@@ -48,12 +48,15 @@ export function VoiceControl({ isActive, onToggle }: VoiceControlProps) {
     setTranscript(currentTranscript);
     console.log("Transcript:", currentTranscript);
 
-    if (currentTranscript.startsWith("go to")) {
-      const page = currentTranscript.substring(6).replace(/\s/g, "");
-      if (page === "home") {
-        navigate("/");
-      } else {
-        navigate(`/${page}`);
+    if (currentTranscript.includes("go to")) {
+      const match = currentTranscript.match(/go to\s*(\w+)/);
+      if (match && match[1]) {
+        const page = match[1].toLowerCase();
+        if (page === "home") {
+          navigate("/");
+        } else {
+          navigate(`/${page}`);
+        }
       }
     } else if (currentTranscript.includes("scroll down")) {
       window.scrollBy(0, window.innerHeight);
@@ -63,7 +66,7 @@ export function VoiceControl({ isActive, onToggle }: VoiceControlProps) {
       navigate(-1);
     } else if (currentTranscript.includes("go forward")) {
       navigate(1);
-    } else if (currentTranscript.includes("tell me more about this website")) {
+    } else if (currentTranscript.includes("tell me") && (currentTranscript.includes("about this site") || currentTranscript.includes("about this website"))) {
       toast({
         title: "About the Digital Cultural Heritage Museum",
         description: "This is a modern, voice-controlled digital museum designed to make cultural heritage accessible to everyone. It leverages cutting-edge web technologies to provide an immersive and inclusive experience for exploring artifacts and exhibitions.",
